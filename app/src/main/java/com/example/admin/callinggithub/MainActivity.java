@@ -1,40 +1,19 @@
 package com.example.admin.callinggithub;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
-
-import com.example.admin.callinggithub.model.MyResponse;
-import com.example.admin.callinggithub.model.Repo;
-import com.google.gson.Gson;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivityTag";
-    private OkHttpClient client;
-    private Request request;
-    String url = "https://api.github.com/users/jarrett-adkins";
-    String loginName, avatarUrl, profileUrl, repoCount;
-    static ImageView avatar;
-    static private Bitmap bitmap;
+    ImageView avatar;
+    TextView nameTextView, URLTextView, repoCountTextView;
+    Button repoButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +21,23 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         avatar = findViewById(R.id.ivAvatar);
+        nameTextView = findViewById( R.id.tvProfileName );
+        URLTextView = findViewById( R.id.tvProfileURL );
+        repoCountTextView = findViewById( R.id.tvProfileRepoCount );
+        repoButton = findViewById( R.id.btnGoToRepo );
 
-        MyRunnable runnable = new MyRunnable( avatar );
+        ProfileRunnable runnable = new ProfileRunnable( avatar, nameTextView, URLTextView, repoCountTextView );
         Thread t = new Thread( runnable );
         t.start();
+    }
 
-        /*
+    public void goToRepos(View view) {
+        Intent intent = new Intent( this, RepoActivity.class );
+        startActivity( intent );
+    }
+}
+
+/*
         client = new OkHttpClient();
 
         request = new Request.Builder()
@@ -124,15 +114,3 @@ public class MainActivity extends AppCompatActivity {
             }
         }).start();
         //*/
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-
-    public void initViews() {
-        Log.d(TAG, "onStart: " + loginName );
-        avatar.setImageBitmap( bitmap );
-    }
-}
