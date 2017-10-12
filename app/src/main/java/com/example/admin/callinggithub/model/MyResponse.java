@@ -13,9 +13,9 @@ public class MyResponse {
     @SerializedName("created_at")
     @Expose
     private String created_at;
-    @SerializedName("watchers")
+    @SerializedName("description")
     @Expose
-    private int watchers;
+    private String description;
 
     public String getName() {
         return name;
@@ -33,12 +33,12 @@ public class MyResponse {
         this.created_at = created_at;
     }
 
-    public Integer getWatchers() {
-        return watchers;
+    public String getDescription() {
+        return description;
     }
 
-    public void setWatchers(Integer age) {
-        this.watchers = watchers;
+    public void setDescription(Integer age) {
+        this.description = description;
     }
 
 }

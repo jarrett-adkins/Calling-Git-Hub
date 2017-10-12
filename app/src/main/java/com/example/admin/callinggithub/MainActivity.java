@@ -1,17 +1,27 @@
 package com.example.admin.callinggithub;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 
 import com.example.admin.callinggithub.model.MyResponse;
+import com.example.admin.callinggithub.model.Repo;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -23,14 +33,21 @@ public class MainActivity extends AppCompatActivity {
     private Request request;
     String url = "https://api.github.com/users/jarrett-adkins";
     String loginName, avatarUrl, profileUrl, repoCount;
+    static ImageView avatar;
+    static private Bitmap bitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //OkHttp
+        avatar = findViewById(R.id.ivAvatar);
 
+        MyRunnable runnable = new MyRunnable( avatar );
+        Thread t = new Thread( runnable );
+        t.start();
+
+        /*
         client = new OkHttpClient();
 
         request = new Request.Builder()
@@ -53,12 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
                     JSONObject mainObject = new JSONObject( response );
-                    /*
-                    Log.d(TAG, "MyParser: " + mainObject.get( "login" ));
-                    Log.d(TAG, "MyParser: " + mainObject.get( "avatar_url" ));
-                    Log.d(TAG, "MyParser: " + mainObject.get( "url" ));
-                    Log.d(TAG, "MyParser: " + mainObject.get( "public_repos" ));
-                    //*/
 
                     loginName = mainObject.get( "login" ).toString();
                     avatarUrl = mainObject.get( "avatar_url" ).toString();
@@ -84,26 +95,44 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                //Log.d(TAG, "MyParser: " + response);
-                try {
-                    JSONArray array = new JSONArray(response);
-                    JSONObject mainObject = (JSONObject) array.get(0);
-                    Log.d(TAG, "MyParser: " + mainObject.get( "name" ));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
                 //serialize the response to objects with GSON
                 Gson gson = new Gson();
                 MyResponse[] myResponse = gson.fromJson( response, MyResponse[].class );
-                Log.d(TAG, "run: " + myResponse[0].getName() );
-                //name
-                //created_at
-                //watchers
+                List<Repo> repos = new ArrayList<>();
+                //Log.d(TAG, "run: " + myResponse[0].getName() );
+
+                for (int i = 0; i < myResponse.length; i++) {
+                    repos.add( new Repo( myResponse[i].getName(),
+                                         myResponse[i].getCreated(),
+                                         myResponse[i].getDescription())
+                             );
+                }
 
                 //bind views
 
+                try {
+                    URL newurl = new URL( avatarUrl );
+                    bitmap = BitmapFactory.decodeStream(newurl.openConnection().getInputStream());
+                    //avatar.setImageBitmap( bitmap );
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                initViews();
             }
         }).start();
+        //*/
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    public void initViews() {
+        Log.d(TAG, "onStart: " + loginName );
+        avatar.setImageBitmap( bitmap );
     }
 }
